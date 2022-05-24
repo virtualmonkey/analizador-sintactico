@@ -10,6 +10,8 @@ import Tree from './Tree.js'
 export default class DFA {
   constructor() {
     this.r = null;
+    this.id = null;
+    this.rawAutomata = null;
     this.directDFA = null;
     this.directDFAStartEndNodes = null;
   }
@@ -24,7 +26,7 @@ export default class DFA {
       if (
         expression[currentCharacter] !== constants.OR &&
         expression[currentCharacter] !== constants.KLEEN_CLOSURE &&
-        expression[currentCharacter] !== constants.POSITIVE_CLOSURE &&
+        expression[currentCharacter] !== constants.NEW_POSITIVE_CLOSURE &&
         expression[currentCharacter] !== constants.ZERO_OR_ONE &&
         expression[currentCharacter] !== constants.NEW_CONCAT &&
         expression[currentCharacter] !== constants.OPEN_PARENTHESIS &&
@@ -34,7 +36,7 @@ export default class DFA {
           currentCharacter < expression.length &&
           expression[currentCharacter] !== constants.OR &&
           expression[currentCharacter] !== constants.KLEEN_CLOSURE &&
-          expression[currentCharacter] !== constants.POSITIVE_CLOSURE &&
+          expression[currentCharacter] !== constants.NEW_POSITIVE_CLOSURE &&
           expression[currentCharacter] !== constants.ZERO_OR_ONE &&
           expression[currentCharacter] !== constants.NEW_CONCAT &&
           expression[currentCharacter] !== constants.OPEN_PARENTHESIS &&
@@ -63,7 +65,7 @@ export default class DFA {
       else {
         if (
           expression[currentCharacter] === constants.KLEEN_CLOSURE ||
-          expression[currentCharacter] === constants.POSITIVE_CLOSURE ||
+          expression[currentCharacter] === constants.NEW_POSITIVE_CLOSURE ||
           expression[currentCharacter] === constants.ZERO_OR_ONE
         ) {
           const tree = new Tree(uuidv4(), expression[currentCharacter], trees.pop(), null);
@@ -122,7 +124,7 @@ export default class DFA {
           tree.head !== constants.EPSILON &&
           tree.head !== constants.OR &&
           tree.head !== constants.KLEEN_CLOSURE &&
-          tree.head !== constants.POSITIVE_CLOSURE &&
+          tree.head !== constants.NEW_POSITIVE_CLOSURE &&
           tree.head !== constants.ZERO_OR_ONE &&
           tree.head !== constants.NEW_CONCAT &&
           tree.head !== constants.OPEN_PARENTHESIS &&
@@ -156,7 +158,7 @@ export default class DFA {
       }
 
       // n+
-      else if (n === constants.POSITIVE_CLOSURE) {
+      else if (n === constants.NEW_POSITIVE_CLOSURE) {
         // nullable(c1)
         (this.calculateNullableFunction(c1)) ? nullableResult = true : nullableResult = false;
       }
@@ -178,7 +180,7 @@ export default class DFA {
       if (
         n === constants.OR ||
         n === constants.KLEEN_CLOSURE ||
-        n === constants.POSITIVE_CLOSURE ||
+        n === constants.NEW_POSITIVE_CLOSURE ||
         n === constants.ZERO_OR_ONE ||
         n === constants.NEW_CONCAT ||
         n === constants.OPEN_PARENTHESIS ||
@@ -206,7 +208,7 @@ export default class DFA {
         }
 
         // n = c1* or n = c1? or n = c1+
-        else if (n === constants.KLEEN_CLOSURE || n === constants.POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
+        else if (n === constants.KLEEN_CLOSURE || n === constants.NEW_POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
           // firstPos(c1)
           states.push(...this.calculateFirstPosition(c1))
         }
@@ -228,7 +230,7 @@ export default class DFA {
       if (
         n === constants.OR ||
         n === constants.KLEEN_CLOSURE ||
-        n === constants.POSITIVE_CLOSURE ||
+        n === constants.NEW_POSITIVE_CLOSURE ||
         n === constants.ZERO_OR_ONE ||
         n === constants.NEW_CONCAT ||
         n === constants.OPEN_PARENTHESIS ||
@@ -253,7 +255,7 @@ export default class DFA {
           states.push(...union);
         }
         // n = c1* or n = c1? or n = c1+
-        else if (n === constants.KLEEN_CLOSURE || n === constants.POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
+        else if (n === constants.KLEEN_CLOSURE || n === constants.NEW_POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
           // lastPos(c1)
           states.push(...this.calculateLastPosition(c1))
         }
@@ -289,7 +291,7 @@ export default class DFA {
         }
       }
 
-      else if (n === constants.POSITIVE_CLOSURE) {
+      else if (n === constants.NEW_POSITIVE_CLOSURE) {
         for (let lastPositionsLeftTree of this.calculateLastPosition(c1)) {
           for (let firstPositionsLeftTree of this.calculateFirstPosition(c1)) {
             table[lastPositionsLeftTree.getUniqueTree()].push(firstPositionsLeftTree);
@@ -308,7 +310,7 @@ export default class DFA {
       if (
         symbols !== constants.OR &&
         symbols !== constants.KLEEN_CLOSURE &&
-        symbols !== constants.POSITIVE_CLOSURE &&
+        symbols !== constants.NEW_POSITIVE_CLOSURE &&
         symbols !== constants.ZERO_OR_ONE &&
         symbols !== constants.NEW_CONCAT &&
         symbols !== constants.OPEN_PARENTHESIS &&
@@ -419,7 +421,7 @@ export default class DFA {
     return table;
   }
 
-  getDirectDFA(r) {
+  getDirectDFA(r, id = "anonymous-automata") {
     this.r = r;
     const syntacticTree = this.buildTree(this.r);
 
@@ -435,12 +437,19 @@ export default class DFA {
 
     const { automata, startEndNodes } = this.buildAutomata(rawAutomata);
 
+    this.id = id;
+    this.rawAutomata = rawAutomata;
+    
     this.directDFA = automata;
     this.directDFAStartEndNodes = startEndNodes;
 
     return {
       directDFA: this.directDFA,
-      directDFAStartEndNodes: this.directDFAStartEndNodes
+      directDFAStartEndNodes: this.directDFAStartEndNodes,
+      rawAutomata: {
+        state: this.rawAutomata, 
+        id: this.id
+      }
     }
   }
 

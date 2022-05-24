@@ -1,12 +1,13 @@
 import promptSync from 'prompt-sync';
 import getCompilableFile from './LexicalAnalizer/LexicalAnalizer.js';
+import { getStatements, removeComments } from './FileReader/FileReader.js';
 import * as fs from 'fs';
 import trim from 'lodash/trim.js'
 
 const prompt = promptSync();
 
 console.log("\n-------------------------------------------");
-console.log("        +++ Analizador Léxico +++          ");
+console.log("        +++ Analizador Sintáctico +++          ");
 console.log("-------------------------------------------");
 console.log("\nEste analizador funciona de la siguiente forma \n");
 console.log("\n1. Se le solicitará el path(relativo) de el archivo con extensión .ATG que desea analizar (los archivos de prueba se encuentran en la carpeta /in)");
@@ -22,18 +23,20 @@ const tokens = [];
 const productions = [];
 const end = [];
 
-const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
-//const fileRelativePath = "in/ArchivoPrueba5.atg"
+//const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
+const fileRelativePath = "in/ArchivoPrueba1.atg"
 
-const inputFileLines = []
+const rawInputFileLines = []
 
 const readFile = fs.readFileSync(fileRelativePath, "utf-8");
 
 readFile.split(/\r?\n/).forEach(line =>  {
   if (trim(line).length !== 0){
-    inputFileLines.push(trim(line));
+    rawInputFileLines.push(trim(line));
   }
 });
+
+const inputFileLines = removeComments(rawInputFileLines);
 
 for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
   if (inputFileLines[lineIndex].includes("COMPILER")){
@@ -74,7 +77,7 @@ for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
     for (let currIndex = lineIndex + 1; currIndex < inputFileLines.length; currIndex++){
       if (inputFileLines[currIndex].includes("END")){
         break
-      } else {
+      } else {       
         productions.push(inputFileLines[currIndex])
       }
     }
@@ -85,10 +88,18 @@ for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
   }
 }
 
-const outputFileLines = getCompilableFile(header, characters, keywords, tokens);
+// SEPARATE PARTS OF FILE INTO STATEMENTS
+const { characterStatements, keywordStatements, tokenStatements, productionStatements } = getStatements(characters, keywords, tokens, productions);
 
-const writeStream = fs.createWriteStream(`./out/${header[0]}.js`);
+// console.log("characterStatements -> ", characterStatements);
+// console.log("keywordStatements -> ", keywordStatements);
+// console.log("tokenStatements -> ", tokenStatements);
+// console.log("productionStatements -> ", productionStatements);
 
-outputFileLines.forEach((line) => writeStream.write(line))
+// const outputFileLines = getCompilableFile(header, characters, keywords, tokens);
 
-console.log(`Clickee acá para ver el archivo generado -----> ./out/${header[0]}.js`)
+// const writeStream = fs.createWriteStream(`./out/${header[0]}.js`);
+
+// outputFileLines.forEach((line) => writeStream.write(line))
+
+// console.log(`Clickee acá para ver el archivo generado -----> ./out/${header[0]}.js`)

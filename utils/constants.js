@@ -5,6 +5,7 @@ const OPEN_CURLY = "{";
 const CLOSING_CURLY = "}";
 const OR = "|";
 const POSITIVE_CLOSURE = "+";
+const NEW_POSITIVE_CLOSURE = "ζ"
 const KLEEN_CLOSURE = "*";
 const CONCAT = ".";
 const NEW_CONCAT = "&";
@@ -26,6 +27,7 @@ export const constants = {
   CLOSING_CURLY,
   OR,
   POSITIVE_CLOSURE,
+  NEW_POSITIVE_CLOSURE,
   KLEEN_CLOSURE,
   CONCAT,
   NEW_CONCAT,
@@ -37,5 +39,5 @@ export const constants = {
   OPEN_PARENTHESIS_s,
   CLOSING_PARENTHESIS_s,
   KLEEN_CLOSURE_OPEN_s,
-  KLEEN_CLOSURE_CLOSE_s  
+  KLEEN_CLOSURE_CLOSE_s
 }
