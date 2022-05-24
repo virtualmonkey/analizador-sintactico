@@ -45,6 +45,6 @@ Factor <ref int resultado> =					(.int signo = 1;.)
 	.
 
 Number <ref int resultado> = numero				(. resultado = ultimoToken.obtenerValor(); .)
-.
+	.
 
 END ArchivoPrueba1

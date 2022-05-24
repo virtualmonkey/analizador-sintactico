@@ -1,8 +1,7 @@
 import promptSync from 'prompt-sync';
-import getCompilableFile from './LexicalAnalizer/LexicalAnalizer.js';
-import { getStatements, removeComments } from './FileReader/FileReader.js';
+import { getCharacterStatements, getKeywordStatements, getProductionStatements, removeComments, getCharactersAutomatas, getKeywordsAutomatas, getTokenAutomatas } from './FileReader/FileReader.js';
 import * as fs from 'fs';
-import trim from 'lodash/trim.js'
+import trim from 'lodash/trim.js';
 
 const prompt = promptSync();
 
@@ -89,12 +88,18 @@ for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
 }
 
 // SEPARATE PARTS OF FILE INTO STATEMENTS
-const { characterStatements, keywordStatements, tokenStatements, productionStatements } = getStatements(characters, keywords, tokens, productions);
+const characterStatements = getCharacterStatements(characters);
+const keywordStatements = getKeywordStatements(keywords);
+const productionStatements = getProductionStatements(productions);
 
-// console.log("characterStatements -> ", characterStatements);
-// console.log("keywordStatements -> ", keywordStatements);
-// console.log("tokenStatements -> ", tokenStatements);
-// console.log("productionStatements -> ", productionStatements);
+// GET AUTOMATAS OF EACH COMPONENT
+const characterAutomatas = getCharactersAutomatas(characterStatements);
+const keywordAutomatas = getKeywordsAutomatas(keywordStatements);
+const tokenAutomatas = getTokenAutomatas(tokens, characterAutomatas);
+
+// console.log("characterAutomatas -> ", characterAutomatas);
+// console.log("keywordAutomatas -> ", keywordAutomatas);
+// console.log("tokenAutomatas -> ", tokenAutomatas);
 
 // const outputFileLines = getCompilableFile(header, characters, keywords, tokens);
 

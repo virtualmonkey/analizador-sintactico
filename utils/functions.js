@@ -1,6 +1,6 @@
 import uniq from 'lodash/uniq.js';
 import { constants } from './constants.js';
-import { CHR } from '../LexicalAnalizer/LexicalAnalizer.js'
+import { CHR } from '../FileReader/FileReader.js';
 
 function simplifyArray (expression, array){
   const simplifiedArray = [];
@@ -97,6 +97,10 @@ function addConcatBetweenGroupedTerms(tokenValue){
   return newTokenValue;
 }
 
+function isChar(string){
+  return string.includes("CHR(") || string.includes("chr(");
+}
+
 export const functions = {
   simplifyArray,
   prepareAutomatForGraphic,
@@ -109,4 +113,5 @@ export const functions = {
   cleanFinalString,
   handleForwardSlash,
   addConcatBetweenGroupedTerms,
+  isChar
 }

@@ -4,6 +4,7 @@ const CLOSING_PARENTHESIS = ")";
 const OPEN_CURLY = "{";
 const CLOSING_CURLY = "}";
 const OR = "|";
+const PLUS = "+"
 const POSITIVE_CLOSURE = "+";
 const NEW_POSITIVE_CLOSURE = "ζ"
 const KLEEN_CLOSURE = "*";
@@ -11,6 +12,8 @@ const CONCAT = ".";
 const NEW_CONCAT = "&";
 const ZERO_OR_ONE = "?"
 const EPSILON = "ε";
+const SINGLE_QUOTE = "'";
+const DOUBLE_QUOTE = `"`;
 const LETTERS =["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","X","Y","Z"];
 
 const OR_s = `+"${OR}"+`;
@@ -26,6 +29,7 @@ export const constants = {
   OPEN_CURLY,
   CLOSING_CURLY,
   OR,
+  PLUS,
   POSITIVE_CLOSURE,
   NEW_POSITIVE_CLOSURE,
   KLEEN_CLOSURE,
@@ -33,6 +37,8 @@ export const constants = {
   NEW_CONCAT,
   ZERO_OR_ONE,
   EPSILON,
+  SINGLE_QUOTE,
+  DOUBLE_QUOTE,
   LETTERS,
   OR_s,
   CONCAT_s,
