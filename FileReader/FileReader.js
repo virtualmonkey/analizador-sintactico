@@ -23,10 +23,16 @@ export function removeComments(linesArray){
 
   const linesWithoutMultilineComments = linesArray.filter((line, i) => !indexesOfCommentedLines.includes(i))
 
-  const linesWithoutOneLineComments = linesWithoutMultilineComments.map((line) => {
+  const linesWithoutOneLineComments = [];
+
+  linesWithoutMultilineComments.forEach((line) => {
     let preComment = "";
-    (line.includes("//")) ? preComment = line.split("//")[0] : preComment = line; 
-    return preComment;
+    if (line.includes("//") === true){
+      preComment = line.split("//")[0];
+      if (preComment.length !== 0) linesWithoutOneLineComments.push(preComment);
+    } else {
+      linesWithoutOneLineComments.push(line);
+    }
   })
 
   return linesWithoutOneLineComments;

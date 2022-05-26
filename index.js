@@ -1,6 +1,8 @@
 import promptSync from 'prompt-sync';
+import reverse from 'lodash/reverse.js';
 import { removeComments, getCharacterStatements, getKeywordStatements, getProductionStatements, getTokenStatements } from './FileReader/FileReader.js';
 import { getCharactersAutomatas, getKeywordsAutomatas, getProductionAdditionalTokens, getTokenAutomatas, getTableOfAutomatas, getAdditionalTokenAutomatas } from './AutomataCreator/AutomataCreator.js';
+import { generateOutputFile } from './FileGenerator/FileGenerator.js';
 import DFA from './DFA/DFA.js';
 import { functions } from './utils/functions.js';
 
@@ -27,7 +29,7 @@ const productions = [];
 const end = [];
 
 //const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
-const fileRelativePath = "in/ArchivoPrueba1.atg"
+const fileRelativePath = "in/AritmeticaSimple.atg"
 
 const rawInputFileLines = []
 
@@ -96,25 +98,28 @@ const characterStatements = getCharacterStatements(characters);
 const tokenStatements = getTokenStatements(tokens)
 const keywordStatements = getKeywordStatements(keywords);
 const productionStatements = getProductionStatements(productions);
+const additionalTokens = getProductionAdditionalTokens(productionStatements)
 
 console.log("STATEMENTS");
-console.log("keywordStatements -> ", keywordStatements);
-console.log("tokenStatements -> ", tokenStatements);
+// console.log("keywordStatements -> ", keywordStatements);
+// console.log("tokenStatements -> ", tokenStatements);
 
 // GET AUTOMATAS OF EACH COMPONENT
 const characterAutomatas = getCharactersAutomatas(characterStatements);
 const keywordAutomatas = getKeywordsAutomatas(keywordStatements);
-const tokenAutomatas = getTokenAutomatas(tokens, characterAutomatas);
-
-const additionalTokens = getProductionAdditionalTokens(productionStatements)
+const tokenAutomatas = getTokenAutomatas(reverse(tokens), characterAutomatas);
 const additionalTokenAutomatas = getAdditionalTokenAutomatas(additionalTokens);
 
 console.log("AUTOMATAS");
-console.log("characterAutomatas -> ", characterAutomatas);
-console.log("keywordAutomatas -> ", keywordAutomatas);
-console.log("tokenAutomatas -> ", tokenAutomatas);
-console.log("additionalTokenAutomatas -> ", additionalTokenAutomatas);
+// console.log("characterAutomatas -> ", characterAutomatas);
+// console.log("keywordAutomatas -> ", keywordAutomatas);
+// console.log("tokenAutomatas -> ", tokenAutomatas);
+// console.log("additionalTokenAutomatas -> ", additionalTokenAutomatas);
 
+const tableOfAutomatas = getTableOfAutomatas(keywordAutomatas, tokenAutomatas, additionalTokenAutomatas);
+
+// console.log("header -> ", header)
+console.log("tableOfAutomatas -> ", tableOfAutomatas);
 // const dfaInstance = new DFA();
 
 // const dfa = dfaInstance.getDirectDFA("{{0|1}}&{{{0|1}}}Δ&X?");
@@ -123,10 +128,10 @@ console.log("additionalTokenAutomatas -> ", additionalTokenAutomatas);
 // console.log("El automata ha sido guardado! Ahora puede correr 'python3 graphicUtils/graphicDirectDFA.py' en otra terminal para visualizarlo \n");
 
 
-// const outputFileLines = getCompilableFile(header, characters, keywords, tokens);
+const outputFileLines = generateOutputFile(header, tableOfAutomatas, keywordStatements, tokenStatements);
 
-// const writeStream = fs.createWriteStream(`./out/${header[0]}.js`);
+const writeStream = fs.createWriteStream(`./out/${header[0]}.js`);
 
-// outputFileLines.forEach((line) => writeStream.write(line))
+outputFileLines.forEach((line) => writeStream.write(line))
 
 // console.log(`Clickee acá para ver el archivo generado -----> ./out/${header[0]}.js`)

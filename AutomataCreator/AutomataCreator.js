@@ -233,10 +233,10 @@ export function getTokenAutomatas(tokensArray, characterAutomatas){
     for (let characterKey of characterKeys){
       tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(characterKey, characterAutomatas[characterKey]) 
     }
-    // tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.OPEN_PARENTHESIS, constants.NEW_OPEN_PARENTHESIS);
-    // tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.CLOSING_PARENTHESIS, constants.NEW_CLOSING_PARENTHESIS);
-    // tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.KLEEN_CLOSURE, constants.NEW_KLEEN_CLOSURE);
-    // tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.POSITIVE_CLOSURE, constants.NEW_POSITIVE_CLOSURE);
+    tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.OPEN_PARENTHESIS, constants.NEW_OPEN_PARENTHESIS);
+    tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.CLOSING_PARENTHESIS, constants.NEW_CLOSING_PARENTHESIS);
+    tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.KLEEN_CLOSURE, constants.NEW_KLEEN_CLOSURE);
+    tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.POSITIVE_CLOSURE, constants.NEW_POSITIVE_CLOSURE);
   }
 
   return tokenAuomatas;
@@ -268,32 +268,25 @@ export function getAdditionalTokenAutomatas(additionalTokensArray){
 
   const string = constants.NEW_OPEN_PARENTHESIS + constants.NEW_OPEN_PARENTHESIS + additionalTokensArray.join("|") + constants.NEW_CLOSING_PARENTHESIS + constants.NEW_CLOSING_PARENTHESIS;
 
-  additionalTokensAutomatas["additional"] = string;
+  // TODO: change this for something more descriptive
+  additionalTokensAutomatas["Token"] = string;
   return additionalTokensAutomatas;
 }
 
 export function getTableOfAutomatas(keywordAutomatas, tokenAutomatas, additionalTokenAutomatas){
   const tableOfAutomatas = {};
 
+  for (let additionalToken in additionalTokenAutomatas){
+    tableOfAutomatas[additionalToken] = additionalTokenAutomatas[additionalToken];
+  }
+
   for (let keyword in keywordAutomatas){
-    const dfaInstance = new DFA();
-    const keywordAutomata = dfaInstance.getDirectDFA(keywordAutomatas[keyword]);
-    tableOfAutomatas[keyword] = keywordAutomata;
+    tableOfAutomatas[keyword] = keywordAutomatas[keyword];
   }
 
   for (let token in tokenAutomatas){
-    const dfaInstance = new DFA();
-    const tokenAutomata = dfaInstance.getDirectDFA(tokenAutomatas[token]);
-    tableOfAutomatas[token] = tokenAutomata;
-  }
-
-  for (let additionalToken in additionalTokenAutomatas){
-    const dfaInstance = new DFA();
-    const additionalTokenAutomata = dfaInstance.getDirectDFA(additionalTokenAutomatas[additionalToken]);
-    tableOfAutomatas[additionalToken] = additionalTokenAutomata;
+    tableOfAutomatas[token] = tokenAutomatas[token];
   }
 
   return tableOfAutomatas;
 }
-
-getAdditionalTokenAutomatas([])
