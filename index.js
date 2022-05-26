@@ -1,5 +1,9 @@
 import promptSync from 'prompt-sync';
-import { getCharacterStatements, getKeywordStatements, getProductionStatements, removeComments, getCharactersAutomatas, getKeywordsAutomatas, getTokenAutomatas } from './FileReader/FileReader.js';
+import { removeComments, getCharacterStatements, getKeywordStatements, getProductionStatements, getTokenStatements } from './FileReader/FileReader.js';
+import { getCharactersAutomatas, getKeywordsAutomatas, getProductionAdditionalTokens, getTokenAutomatas, getTableOfAutomatas, getAdditionalTokenAutomatas } from './AutomataCreator/AutomataCreator.js';
+import DFA from './DFA/DFA.js';
+import { functions } from './utils/functions.js';
+
 import * as fs from 'fs';
 import trim from 'lodash/trim.js';
 
@@ -89,17 +93,35 @@ for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
 
 // SEPARATE PARTS OF FILE INTO STATEMENTS
 const characterStatements = getCharacterStatements(characters);
+const tokenStatements = getTokenStatements(tokens)
 const keywordStatements = getKeywordStatements(keywords);
 const productionStatements = getProductionStatements(productions);
+
+console.log("STATEMENTS");
+console.log("keywordStatements -> ", keywordStatements);
+console.log("tokenStatements -> ", tokenStatements);
 
 // GET AUTOMATAS OF EACH COMPONENT
 const characterAutomatas = getCharactersAutomatas(characterStatements);
 const keywordAutomatas = getKeywordsAutomatas(keywordStatements);
 const tokenAutomatas = getTokenAutomatas(tokens, characterAutomatas);
 
-// console.log("characterAutomatas -> ", characterAutomatas);
-// console.log("keywordAutomatas -> ", keywordAutomatas);
-// console.log("tokenAutomatas -> ", tokenAutomatas);
+const additionalTokens = getProductionAdditionalTokens(productionStatements)
+const additionalTokenAutomatas = getAdditionalTokenAutomatas(additionalTokens);
+
+console.log("AUTOMATAS");
+console.log("characterAutomatas -> ", characterAutomatas);
+console.log("keywordAutomatas -> ", keywordAutomatas);
+console.log("tokenAutomatas -> ", tokenAutomatas);
+console.log("additionalTokenAutomatas -> ", additionalTokenAutomatas);
+
+// const dfaInstance = new DFA();
+
+// const dfa = dfaInstance.getDirectDFA("{{0|1}}&{{{0|1}}}Δ&X?");
+// const jsonAutomata = JSON.stringify(functions.prepareAutomatForGraphic(dfa.directDFA, dfa.directDFAStartEndNodes));
+// fs.writeFileSync('directDFA.json', jsonAutomata, 'utf8');
+// console.log("El automata ha sido guardado! Ahora puede correr 'python3 graphicUtils/graphicDirectDFA.py' en otra terminal para visualizarlo \n");
+
 
 // const outputFileLines = getCompilableFile(header, characters, keywords, tokens);
 

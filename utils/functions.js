@@ -1,6 +1,12 @@
 import uniq from 'lodash/uniq.js';
 import { constants } from './constants.js';
-import { CHR } from '../FileReader/FileReader.js';
+
+export function CHR(index){
+  if (index === 9){
+    return String.fromCharCode(0x2192);
+  }
+  return String.fromCharCode(index);
+}
 
 function simplifyArray (expression, array){
   const simplifiedArray = [];

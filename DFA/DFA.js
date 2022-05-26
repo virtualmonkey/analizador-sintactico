@@ -4,6 +4,7 @@ import first from 'lodash/first.js';
 import countBy from 'lodash/countBy.js';
 import isEqual from 'lodash/isEqual.js';
 import isEmpty from 'lodash/isEmpty.js';
+import reverse from 'lodash/reverse.js';
 import { constants } from '../utils/constants.js'
 import Tree from './Tree.js'
 
@@ -25,22 +26,22 @@ export default class DFA {
       let wholeExpression = "";
       if (
         expression[currentCharacter] !== constants.OR &&
-        expression[currentCharacter] !== constants.KLEEN_CLOSURE &&
+        expression[currentCharacter] !== constants.NEW_KLEEN_CLOSURE &&
         expression[currentCharacter] !== constants.NEW_POSITIVE_CLOSURE &&
         expression[currentCharacter] !== constants.ZERO_OR_ONE &&
         expression[currentCharacter] !== constants.NEW_CONCAT &&
-        expression[currentCharacter] !== constants.OPEN_PARENTHESIS &&
-        expression[currentCharacter] !== constants.CLOSING_PARENTHESIS
+        expression[currentCharacter] !== constants.NEW_OPEN_PARENTHESIS &&
+        expression[currentCharacter] !== constants.NEW_CLOSING_PARENTHESIS
       ) {
         while (
           currentCharacter < expression.length &&
           expression[currentCharacter] !== constants.OR &&
-          expression[currentCharacter] !== constants.KLEEN_CLOSURE &&
+          expression[currentCharacter] !== constants.NEW_KLEEN_CLOSURE &&
           expression[currentCharacter] !== constants.NEW_POSITIVE_CLOSURE &&
           expression[currentCharacter] !== constants.ZERO_OR_ONE &&
           expression[currentCharacter] !== constants.NEW_CONCAT &&
-          expression[currentCharacter] !== constants.OPEN_PARENTHESIS &&
-          expression[currentCharacter] !== constants.CLOSING_PARENTHESIS
+          expression[currentCharacter] !== constants.NEW_OPEN_PARENTHESIS &&
+          expression[currentCharacter] !== constants.NEW_CLOSING_PARENTHESIS
         ) {
           wholeExpression += expression[currentCharacter];
           currentCharacter++;
@@ -52,11 +53,18 @@ export default class DFA {
         currentCharacter--;
       }
 
-      else if (expression[currentCharacter] === constants.OPEN_PARENTHESIS) opStack.push(expression[currentCharacter]);
+      else if (expression[currentCharacter] === constants.NEW_OPEN_PARENTHESIS) {
+        opStack.push(expression[currentCharacter])
+      }
 
-      else if (expression[currentCharacter] === constants.CLOSING_PARENTHESIS) {
-        while (!isEmpty(opStack) && last(opStack) !== constants.OPEN_PARENTHESIS) {
-          const tree = new Tree(uuidv4(), opStack.pop(), trees.pop(), trees.pop());
+      else if (expression[currentCharacter] === constants.NEW_CLOSING_PARENTHESIS) {
+        while (!isEmpty(opStack) && last(opStack) !== constants.NEW_OPEN_PARENTHESIS) {
+
+          const tree = new Tree(uuidv4(), opStack.pop());
+          const val2 = trees.pop();
+          const val1 = trees.pop();
+          tree.left = val1;
+          tree.right = val2;
           trees.push(tree);
         }
         opStack.pop();
@@ -64,18 +72,17 @@ export default class DFA {
 
       else {
         if (
-          expression[currentCharacter] === constants.KLEEN_CLOSURE ||
+          expression[currentCharacter] === constants.NEW_KLEEN_CLOSURE ||
           expression[currentCharacter] === constants.NEW_POSITIVE_CLOSURE ||
           expression[currentCharacter] === constants.ZERO_OR_ONE
         ) {
           const tree = new Tree(uuidv4(), expression[currentCharacter], trees.pop(), null);
           trees.push(tree);
         } else {
-          while (!isEmpty(opStack) && last(opStack) !== constants.OPEN_PARENTHESIS) {
+          while (!isEmpty(opStack) && last(opStack) !== constants.NEW_OPEN_PARENTHESIS) {
             const tree = new Tree(uuidv4(), opStack.pop());
             tree.right = trees.pop();
             tree.left = trees.pop();
-
             trees.push(tree);
           }
 
@@ -88,17 +95,21 @@ export default class DFA {
 
     let singleTree = new Tree();
 
+    let returnedValue = false;
     while (!isEmpty(opStack)) {
-      const tree = new Tree(uuidv4, opStack.pop());
+      const tree = new Tree(uuidv4(), opStack.pop());
       tree.right = trees.pop();
       tree.left = trees.pop();
 
       trees.push(tree);
 
-      if (trees.length === 1) singleTree = last(trees);
+      if (trees.length === 1) {
+        returnedValue = true;
+        singleTree = last(trees);
+      }
     }
 
-    singleTree = last(trees);
+    if (returnedValue===false) singleTree = last(trees);
 
     const extra = new Tree(uuidv4(), constants.EXTRA, null, null);
 
@@ -109,8 +120,22 @@ export default class DFA {
 
   getStates(tree) {
     const states = [];
-
     if (tree !== null) {
+      if (tree.left === null && tree.right === null) {
+        if (
+          tree.head !== constants.EPSILON &&
+          tree.head !== constants.OR &&
+          tree.head !== constants.NEW_KLEEN_CLOSURE &&
+          tree.head !== constants.NEW_POSITIVE_CLOSURE &&
+          tree.head !== constants.ZERO_OR_ONE &&
+          tree.head !== constants.NEW_CONCAT &&
+          tree.head !== constants.NEW_OPEN_PARENTHESIS &&
+          tree.head !== constants.NEW_CLOSING_PARENTHESIS
+        ) {
+          states.push(tree);
+        }
+      }
+
       if (tree.right !== null) {
         for (let state of this.getStates(tree.right)) states.push(state);
       }
@@ -118,24 +143,9 @@ export default class DFA {
       if (tree.left !== null) {
         for (let state of this.getStates(tree.left)) states.push(state);
       }
-
-      if (tree.left === null && tree.right === null) {
-        if (
-          tree.head !== constants.EPSILON &&
-          tree.head !== constants.OR &&
-          tree.head !== constants.KLEEN_CLOSURE &&
-          tree.head !== constants.NEW_POSITIVE_CLOSURE &&
-          tree.head !== constants.ZERO_OR_ONE &&
-          tree.head !== constants.NEW_CONCAT &&
-          tree.head !== constants.OPEN_PARENTHESIS &&
-          tree.head !== constants.CLOSING_PARENTHESIS
-        ) {
-          states.push(tree);
-        }
-      }
     }
 
-    return states;
+    return reverse(states);
   }
 
   calculateNullableFunction(tree) {
@@ -163,7 +173,7 @@ export default class DFA {
         (this.calculateNullableFunction(c1)) ? nullableResult = true : nullableResult = false;
       }
 
-      else if (n === constants.ZERO_OR_ONE || n === constants.EPSILON || n === constants.KLEEN_CLOSURE) {
+      else if (n === constants.ZERO_OR_ONE || n === constants.EPSILON || n === constants.NEW_KLEEN_CLOSURE) {
         return true;
       }
       return nullableResult;
@@ -179,12 +189,12 @@ export default class DFA {
     if (tree !== null) {
       if (
         n === constants.OR ||
-        n === constants.KLEEN_CLOSURE ||
+        n === constants.NEW_KLEEN_CLOSURE ||
         n === constants.NEW_POSITIVE_CLOSURE ||
         n === constants.ZERO_OR_ONE ||
         n === constants.NEW_CONCAT ||
-        n === constants.OPEN_PARENTHESIS ||
-        n === constants.CLOSING_PARENTHESIS
+        n === constants.NEW_OPEN_PARENTHESIS ||
+        n === constants.NEW_CLOSING_PARENTHESIS
       ) {
         // n = c1|c2
         if (n === constants.OR) {
@@ -208,7 +218,7 @@ export default class DFA {
         }
 
         // n = c1* or n = c1? or n = c1+
-        else if (n === constants.KLEEN_CLOSURE || n === constants.NEW_POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
+        else if (n === constants.NEW_KLEEN_CLOSURE || n === constants.NEW_POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
           // firstPos(c1)
           states.push(...this.calculateFirstPosition(c1))
         }
@@ -229,12 +239,12 @@ export default class DFA {
     if (tree !== null) {
       if (
         n === constants.OR ||
-        n === constants.KLEEN_CLOSURE ||
+        n === constants.NEW_KLEEN_CLOSURE ||
         n === constants.NEW_POSITIVE_CLOSURE ||
         n === constants.ZERO_OR_ONE ||
         n === constants.NEW_CONCAT ||
-        n === constants.OPEN_PARENTHESIS ||
-        n === constants.CLOSING_PARENTHESIS
+        n === constants.NEW_OPEN_PARENTHESIS ||
+        n === constants.NEW_CLOSING_PARENTHESIS
       ) {
         // n = c1|c2
         if (n === constants.OR) {
@@ -255,7 +265,7 @@ export default class DFA {
           states.push(...union);
         }
         // n = c1* or n = c1? or n = c1+
-        else if (n === constants.KLEEN_CLOSURE || n === constants.NEW_POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
+        else if (n === constants.NEW_KLEEN_CLOSURE || n === constants.NEW_POSITIVE_CLOSURE || n === constants.ZERO_OR_ONE) {
           // lastPos(c1)
           states.push(...this.calculateLastPosition(c1))
         }
@@ -283,7 +293,7 @@ export default class DFA {
         }
       }
 
-      else if (n === constants.KLEEN_CLOSURE) {
+      else if (n === constants.NEW_KLEEN_CLOSURE) {
         for (let lastPositionsTree of this.calculateLastPosition(tree)) {
           for (let firstPositionsTree of this.calculateFirstPosition(tree)) {
             table[lastPositionsTree.getUniqueTree()].push(firstPositionsTree);
@@ -309,12 +319,12 @@ export default class DFA {
     for (let symbol of expression) {
       if (
         symbols !== constants.OR &&
-        symbols !== constants.KLEEN_CLOSURE &&
+        symbols !== constants.NEW_KLEEN_CLOSURE &&
         symbols !== constants.NEW_POSITIVE_CLOSURE &&
         symbols !== constants.ZERO_OR_ONE &&
         symbols !== constants.NEW_CONCAT &&
-        symbols !== constants.OPEN_PARENTHESIS &&
-        symbols !== constants.CLOSING_PARENTHESIS && 
+        symbols !== constants.NEW_OPEN_PARENTHESIS &&
+        symbols !== constants.NEW_CLOSING_PARENTHESIS && 
         symbols !== constants.EPSILON &&
         !symbols.includes(symbol)
         ) {

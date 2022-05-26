@@ -1,20 +1,30 @@
+const OPEN_CURLY = "{";
+const CLOSING_CURLY = "}";
+const PLUS = "+"
+const EXTRA = "#";
+const SINGLE_QUOTE = "'";
+const DOUBLE_QUOTE = `"`;
+
 
 const OPEN_PARENTHESIS = "(";
 const CLOSING_PARENTHESIS = ")";
-const OPEN_CURLY = "{";
-const CLOSING_CURLY = "}";
-const OR = "|";
-const PLUS = "+"
-const POSITIVE_CLOSURE = "+";
-const NEW_POSITIVE_CLOSURE = "ζ"
-const KLEEN_CLOSURE = "*";
 const CONCAT = ".";
-const NEW_CONCAT = "&";
+const OR = "|";
+const KLEEN_CLOSURE = "*";
+const POSITIVE_CLOSURE = "+";
 const ZERO_OR_ONE = "?"
 const EPSILON = "ε";
-const SINGLE_QUOTE = "'";
-const DOUBLE_QUOTE = `"`;
+
+const NEW_OPEN_PARENTHESIS = "{";
+const NEW_CLOSING_PARENTHESIS = "}";
+const NEW_CONCAT = "&";
+// OR stays the same
+const NEW_KLEEN_CLOSURE = "Δ"
+const NEW_POSITIVE_CLOSURE = "Σ"
+
+
 const LETTERS =["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","X","Y","Z"];
+
 
 const OR_s = `+"${OR}"+`;
 const CONCAT_s = `"${CONCAT}"`;
@@ -31,6 +41,10 @@ export const constants = {
   OR,
   PLUS,
   POSITIVE_CLOSURE,
+  EXTRA,
+  NEW_OPEN_PARENTHESIS,
+  NEW_CLOSING_PARENTHESIS,
+  NEW_KLEEN_CLOSURE,
   NEW_POSITIVE_CLOSURE,
   KLEEN_CLOSURE,
   CONCAT,
