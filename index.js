@@ -29,7 +29,7 @@ const productions = [];
 const end = [];
 
 //const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
-const fileRelativePath = "in/AritmeticaSimple.atg"
+const fileRelativePath = "in/ArchivoPrueba1.atg"
 
 const rawInputFileLines = []
 
@@ -100,7 +100,7 @@ const keywordStatements = getKeywordStatements(keywords);
 const productionStatements = getProductionStatements(productions);
 const additionalTokens = getProductionAdditionalTokens(productionStatements)
 
-console.log("STATEMENTS");
+// console.log("STATEMENTS");
 // console.log("keywordStatements -> ", keywordStatements);
 // console.log("tokenStatements -> ", tokenStatements);
 
@@ -110,7 +110,7 @@ const keywordAutomatas = getKeywordsAutomatas(keywordStatements);
 const tokenAutomatas = getTokenAutomatas(reverse(tokens), characterAutomatas);
 const additionalTokenAutomatas = getAdditionalTokenAutomatas(additionalTokens);
 
-console.log("AUTOMATAS");
+// console.log("AUTOMATAS");
 // console.log("characterAutomatas -> ", characterAutomatas);
 // console.log("keywordAutomatas -> ", keywordAutomatas);
 // console.log("tokenAutomatas -> ", tokenAutomatas);
@@ -119,10 +119,10 @@ console.log("AUTOMATAS");
 const tableOfAutomatas = getTableOfAutomatas(keywordAutomatas, tokenAutomatas, additionalTokenAutomatas);
 
 // console.log("header -> ", header)
-console.log("tableOfAutomatas -> ", tableOfAutomatas);
-// const dfaInstance = new DFA();
+// console.log("tableOfAutomatas -> ", tableOfAutomatas);
 
-// const dfa = dfaInstance.getDirectDFA("{{0|1}}&{{{0|1}}}Δ&X?");
+// const dfaInstance = new DFA();
+// const dfa = dfaInstance.getDirectDFA("{{n}|r}&{{{n}|r}}Δ");
 // const jsonAutomata = JSON.stringify(functions.prepareAutomatForGraphic(dfa.directDFA, dfa.directDFAStartEndNodes));
 // fs.writeFileSync('directDFA.json', jsonAutomata, 'utf8');
 // console.log("El automata ha sido guardado! Ahora puede correr 'python3 graphicUtils/graphicDirectDFA.py' en otra terminal para visualizarlo \n");

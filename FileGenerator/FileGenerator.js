@@ -9,9 +9,13 @@ export function generateOutputFile(headerArray, tableOfAutomatas, keywordStateme
   outputFileLines.push(`import { readTestFile } from "../FileGenerator/FileGenerator.js";`);
   outputFileLines.push("\n");
   outputFileLines.push(`import { getTokens } from "../LexicalAnalizer/LexicalAnalizer.js";`);
-  outputFileLines.push("\n");
+  outputFileLines.push("\n")
+  outputFileLines.push(`import { CHR } from "../utils/functions.js";`);
   outputFileLines.push("\n");
   outputFileLines.push(`const prompt = promptSync();`);
+  outputFileLines.push("\n");
+  outputFileLines.push("import * as fs from 'fs';")
+  outputFileLines.push("\n");
   outputFileLines.push("\n");
   outputFileLines.push("// FILENAME");
   outputFileLines.push("\n");
@@ -26,10 +30,13 @@ export function generateOutputFile(headerArray, tableOfAutomatas, keywordStateme
   // write the tableofAutomatas to the other file
   for (let token in tableOfAutomatas){
     outputFileLines.push("\t");
-    outputFileLines.push(`${token} : "${tableOfAutomatas[token]}",`);
+    outputFileLines.push(`${token} : ${tableOfAutomatas[token]},`);
     outputFileLines.push("\n");
   }
   outputFileLines.push("}");
+  outputFileLines.push("\n");
+  outputFileLines.push("\n");
+  outputFileLines.push(`console.log("tokenAutomatas -> ", tokenAutomatas);`);
   outputFileLines.push("\n");
   outputFileLines.push("\n");
   outputFileLines.push(`const testFileRelativePath = prompt("Ingrese el path relativo del archivo .txt que desea evaluar (revise la carpeta llamada txts) >> ");`);
@@ -40,9 +47,16 @@ export function generateOutputFile(headerArray, tableOfAutomatas, keywordStateme
   outputFileLines.push(`const tokens = getTokens(testFileLines, tokenAutomatas);`);
   outputFileLines.push("\n");
   outputFileLines.push("\n");
-  outputFileLines.push(`console.log("tokens -> ", tokens);`);
+  outputFileLines.push(`// console.log("tokens -> ", tokens);`);
   outputFileLines.push("\n");
   outputFileLines.push("\n");
+  outputFileLines.push(`const jsonOfTokens = JSON.stringify(tokens)`);
+  outputFileLines.push("\n");
+  outputFileLines.push("\n");
+  outputFileLines.push(`fs.writeFileSync('./tokens/tokens.json', jsonOfTokens, 'utf8')`);
+  outputFileLines.push("\n");
+  outputFileLines.push("\n");
+  outputFileLines.push(`console.log("los tokens se han guardado exitosamente en  '/tokens/tokens.js'");`);
 
   return outputFileLines;
 }

@@ -5,7 +5,6 @@ import trim from 'lodash/trim.js';
 import reverse from 'lodash/reverse.js';
 import { constants } from '../utils/constants.js';
 import { functions, CHR } from '../utils/functions.js';
-import DFA from '../DFA/DFA.js';
 
 function tokenStringToAutomataString(tokenAsString){
   let currentTokenLine = "";
@@ -81,7 +80,7 @@ export function getCharactersAutomatas(characterStatements){
           else unicodeInteger += characterStatements[characterStatement][currentCharacter];
           currentCharacter++;
         }
-        automataString += `'${CHR(parseInt(unicodeInteger))}'`;
+        automataString += `CHR(${parseInt(unicodeInteger)})`;
         currentCharacterString = "";
       } else currentCharacterString += characterStatements[characterStatement][currentCharacter];
     }
@@ -237,6 +236,37 @@ export function getTokenAutomatas(tokensArray, characterAutomatas){
     tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.CLOSING_PARENTHESIS, constants.NEW_CLOSING_PARENTHESIS);
     tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.KLEEN_CLOSURE, constants.NEW_KLEEN_CLOSURE);
     tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll(constants.POSITIVE_CLOSURE, constants.NEW_POSITIVE_CLOSURE);
+    tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll("CHR{", "CHR(");
+    
+
+    let newTokenValue = ``;
+
+    for (let i = 0; i < tokenAuomatas[currentToken].length; i++){
+      if (tokenAuomatas[currentToken][i] === "("){
+        newTokenValue += "("
+        let parsed = false;
+        let initialIndex = i;
+
+        while (parsed === false){
+          initialIndex += 1;
+
+          if (tokenAuomatas[currentToken][initialIndex] === "}"){
+            newTokenValue += ")}"
+            parsed = true;
+          } else {
+            newTokenValue += tokenAuomatas[currentToken][initialIndex]
+          }
+        }
+        
+        i += (initialIndex - i);
+      } else {
+        newTokenValue += tokenAuomatas[currentToken][i]
+      }
+    }
+
+   
+    tokenAuomatas[currentToken] = newTokenValue;
+    tokenAuomatas[currentToken] = tokenAuomatas[currentToken].replaceAll("CHR", "${CHR");
   }
 
   return tokenAuomatas;
@@ -268,8 +298,7 @@ export function getAdditionalTokenAutomatas(additionalTokensArray){
 
   const string = constants.NEW_OPEN_PARENTHESIS + constants.NEW_OPEN_PARENTHESIS + additionalTokensArray.join("|") + constants.NEW_CLOSING_PARENTHESIS + constants.NEW_CLOSING_PARENTHESIS;
 
-  // TODO: change this for something more descriptive
-  additionalTokensAutomatas["Token"] = string;
+  additionalTokensAutomatas["special"] = string;
   return additionalTokensAutomatas;
 }
 
@@ -277,15 +306,15 @@ export function getTableOfAutomatas(keywordAutomatas, tokenAutomatas, additional
   const tableOfAutomatas = {};
 
   for (let additionalToken in additionalTokenAutomatas){
-    tableOfAutomatas[additionalToken] = additionalTokenAutomatas[additionalToken];
+    tableOfAutomatas[additionalToken] = "`" + additionalTokenAutomatas[additionalToken] + "`";
   }
 
   for (let keyword in keywordAutomatas){
-    tableOfAutomatas[keyword] = keywordAutomatas[keyword];
+    tableOfAutomatas[keyword] = "`" + keywordAutomatas[keyword] + "`";
   }
 
   for (let token in tokenAutomatas){
-    tableOfAutomatas[token] = tokenAutomatas[token];
+    tableOfAutomatas[token] = "`" + tokenAutomatas[token] + "`";
   }
 
   return tableOfAutomatas;

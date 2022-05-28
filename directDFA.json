@@ -1,1 +1,1 @@
-{"automata":[{"initialState":"s0","symbol":"0","finalState":"s1"},{"initialState":"s0","symbol":"1","finalState":"s1"},{"initialState":"s1","symbol":"0","finalState":"s1"},{"initialState":"s1","symbol":"1","finalState":"s1"},{"initialState":"s1","symbol":"X","finalState":"s2"}],"acceptanceStates":["s1","s2"]}
+{"automata":[{"initialState":"s0","symbol":"n","finalState":"s1"},{"initialState":"s0","symbol":"r","finalState":"s1"},{"initialState":"s1","symbol":"n","finalState":"s1"},{"initialState":"s1","symbol":"r","finalState":"s1"}],"acceptanceStates":["s1"]}
