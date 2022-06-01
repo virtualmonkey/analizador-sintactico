@@ -1,4 +1,5 @@
 import trim from 'lodash/trim.js';
+import { CHR } from '../utils/functions.js'
 
 export function removeComments(linesArray){
   let foundMultilineComment = false;
@@ -103,6 +104,24 @@ export function getProductionStatements(productionsArray){
     newProductionString = newProductionString.replaceAll(" <", "<");
     newProductionString = newProductionString.replaceAll(`";"`, `(";")`);
     newProductionString += ".";
+
+    if (newProductionString.includes("Π]Π(")){
+      const divided = newProductionString.split("Π]Π");
+      const divided2 = divided[1].split("(.")
+      let edited = "";
+
+      for (let i = 0; i < divided2[0].length; i++){
+        if (divided2[0][i]  !== "\t" &&  divided2[0][i]  !== "Π"){
+          edited += divided2[0][i]
+        }
+      }
+
+      let finalString = divided[0] + "Π]Π" + edited + "(." + divided2[1] + "(." + divided2[2]
+      finalString = finalString.replace("|", " |")
+      finalString = finalString.replace(`")"Π`, `")"`)
+      newProductionString = finalString
+
+    }
     return newProductionString;
   })
 

@@ -28,7 +28,7 @@ const productions = [];
 const end = [];
 
 const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
-// const fileRelativePath = "in/ArchivoPrueba0.atg"
+//const fileRelativePath = "in/ArchivoPrueba1.atg"
 
 const rawInputFileLines = []
 
