@@ -1,13 +1,12 @@
 import promptSync from 'prompt-sync';
 import reverse from 'lodash/reverse.js';
+import trim from 'lodash/trim.js';
+import * as fs from 'fs';
+
 import { removeComments, getCharacterStatements, getKeywordStatements, getProductionStatements, getTokenStatements } from './FileReader/FileReader.js';
 import { getCharactersAutomatas, getKeywordsAutomatas, getProductionAdditionalTokens, getTokenAutomatas, getTableOfAutomatas, getAdditionalTokenAutomatas } from './AutomataCreator/AutomataCreator.js';
-import { generateOutputFile } from './FileGenerator/FileGenerator.js';
-import DFA from './DFA/DFA.js';
-import { functions } from './utils/functions.js';
+import { generateLexicalFile, generateParserFile } from './FileGenerator/FileGenerator.js';
 
-import * as fs from 'fs';
-import trim from 'lodash/trim.js';
 
 const prompt = promptSync();
 
@@ -28,8 +27,8 @@ const tokens = [];
 const productions = [];
 const end = [];
 
-//const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
-const fileRelativePath = "in/ArchivoPrueba1.atg"
+const fileRelativePath = prompt("Ingrese el path relativo del archivo >> ");
+// const fileRelativePath = "in/ArchivoPrueba0.atg"
 
 const rawInputFileLines = []
 
@@ -50,7 +49,7 @@ for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
 
   else if (inputFileLines[lineIndex].includes("CHARACTERS")){
     for (let currIndex = lineIndex + 1; currIndex < inputFileLines.length; currIndex++){
-      if (inputFileLines[currIndex].includes("KEYWORDS")){
+      if (inputFileLines[currIndex].includes("KEYWORDS") || inputFileLines[currIndex].includes("KEYWORDS")){
         break
       } else {
         characters.push(inputFileLines[currIndex])
@@ -93,6 +92,7 @@ for (let lineIndex = 0; lineIndex < inputFileLines.length; lineIndex++){
   }
 }
 
+
 // SEPARATE PARTS OF FILE INTO STATEMENTS
 const characterStatements = getCharacterStatements(characters);
 const tokenStatements = getTokenStatements(tokens)
@@ -100,38 +100,20 @@ const keywordStatements = getKeywordStatements(keywords);
 const productionStatements = getProductionStatements(productions);
 const additionalTokens = getProductionAdditionalTokens(productionStatements)
 
-// console.log("STATEMENTS");
-// console.log("keywordStatements -> ", keywordStatements);
-// console.log("tokenStatements -> ", tokenStatements);
-
 // GET AUTOMATAS OF EACH COMPONENT
 const characterAutomatas = getCharactersAutomatas(characterStatements);
 const keywordAutomatas = getKeywordsAutomatas(keywordStatements);
 const tokenAutomatas = getTokenAutomatas(reverse(tokens), characterAutomatas);
 const additionalTokenAutomatas = getAdditionalTokenAutomatas(additionalTokens);
 
-// console.log("AUTOMATAS");
-// console.log("characterAutomatas -> ", characterAutomatas);
-// console.log("keywordAutomatas -> ", keywordAutomatas);
-// console.log("tokenAutomatas -> ", tokenAutomatas);
-// console.log("additionalTokenAutomatas -> ", additionalTokenAutomatas);
-
 const tableOfAutomatas = getTableOfAutomatas(keywordAutomatas, tokenAutomatas, additionalTokenAutomatas);
 
-// console.log("header -> ", header)
-// console.log("tableOfAutomatas -> ", tableOfAutomatas);
+const lexicalFileLines = generateLexicalFile(header, tableOfAutomatas);
+const writeStreamLexical = fs.createWriteStream(`./outLexical/${header[0]}.js`);
+lexicalFileLines.forEach((line) => writeStreamLexical.write(line));
+console.log(`Se generó el archivo de análisis léxico -----> ./outLexical/${header[0]}.js`);
 
-// const dfaInstance = new DFA();
-// const dfa = dfaInstance.getDirectDFA("{{n}|r}&{{{n}|r}}Δ");
-// const jsonAutomata = JSON.stringify(functions.prepareAutomatForGraphic(dfa.directDFA, dfa.directDFAStartEndNodes));
-// fs.writeFileSync('directDFA.json', jsonAutomata, 'utf8');
-// console.log("El automata ha sido guardado! Ahora puede correr 'python3 graphicUtils/graphicDirectDFA.py' en otra terminal para visualizarlo \n");
-
-
-const outputFileLines = generateOutputFile(header, tableOfAutomatas, keywordStatements, tokenStatements);
-
-const writeStream = fs.createWriteStream(`./out/${header[0]}.js`);
-
-outputFileLines.forEach((line) => writeStream.write(line))
-
-// console.log(`Clickee acá para ver el archivo generado -----> ./out/${header[0]}.js`)
+const syntacticFileLines = generateParserFile(productionStatements, keywordStatements, tokenStatements);
+const writeStreamSyntactic = fs.createWriteStream(`./outSyntactic/${header[0]}.py`);
+writeStreamSyntactic.write(syntacticFileLines)
+console.log(`Se generó el archivo de análisis sintáctico -----> ./outSyntactic/${header[0]}.py`);

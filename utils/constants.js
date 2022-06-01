@@ -1,5 +1,7 @@
 const OPEN_CURLY = "{";
 const CLOSING_CURLY = "}";
+const OPEN_BRACKET = "[";
+const CLOSING_BRACKET = "]";
 const PLUS = "+"
 const EXTRA = "#";
 const SINGLE_QUOTE = "'";
@@ -22,7 +24,6 @@ const NEW_CONCAT = "&";
 const NEW_KLEEN_CLOSURE = "Δ"
 const NEW_POSITIVE_CLOSURE = "Σ"
 
-
 const LETTERS =["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","X","Y","Z"];
 
 
@@ -38,6 +39,8 @@ export const constants = {
   CLOSING_PARENTHESIS,
   OPEN_CURLY,
   CLOSING_CURLY,
+  OPEN_BRACKET,
+  CLOSING_BRACKET,
   OR,
   PLUS,
   POSITIVE_CLOSURE,

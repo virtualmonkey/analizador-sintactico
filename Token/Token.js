@@ -1,5 +1,5 @@
 export default class Token {
-  constructor(type, value) {
+	constructor(type, value) {
     this.type = type || null;
     this.value = value || null;
   }

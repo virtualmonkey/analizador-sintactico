@@ -92,6 +92,16 @@ export function getProductionStatements(productionsArray){
     let newProductionString = productionString.replaceAll("@", "");
     newProductionString = newProductionString.replaceAll("π", "");
     newProductionString = newProductionString.replace("=", " EQUALS ");
+    newProductionString = newProductionString.replaceAll("(. ", "(.");
+    newProductionString = newProductionString.replaceAll(" .)", ".)");
+    newProductionString = newProductionString.replaceAll(" >", ">");
+    newProductionString = newProductionString.replaceAll("<ref int ", "<");
+    newProductionString = newProductionString.replaceAll(" < ", "<");
+    newProductionString = newProductionString.replaceAll("< ref", "<");
+    newProductionString = newProductionString.replaceAll("<ref ", "<");
+    newProductionString = newProductionString.replaceAll("<ref", "<");
+    newProductionString = newProductionString.replaceAll(" <", "<");
+    newProductionString = newProductionString.replaceAll(`";"`, `(";")`);
     newProductionString += ".";
     return newProductionString;
   })
